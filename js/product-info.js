@@ -37,7 +37,7 @@ const cargarInfoProducto = (product, productCategoryName) => {
       const nuevaImagen = document.createElement("img");
       nuevaImagen.classList.add("image-producto");
       nuevaImagen.classList.add("card-img-top");
-      nuevaImagen.src = `./img/prod${product.id}_${imagenActual}.jpg`;
+      nuevaImagen.src = `/img/prod${product.id}_${imagenActual}.jpg`;
       carruselProduct.appendChild(nuevaImagen);
 
       // Incrementa las imagenes y al llegar a la última regresa a la 1ra
@@ -203,12 +203,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       relatedProductsDiv.appendChild(colmd);
 
       productoRelacionado.addEventListener("click", async () => {
-        productObject = await getJSONData(`https://japceibal.github.io/emercado-api/products/${element.id}.json`);
-        console.log(productObject)
-        localStorage.setItem("productoClickeado", JSON.stringify(await productObject.data));
-        window.location.href = "product-info.html"
-
-        
+        productObject = await getJSONData(
+          `https://japceibal.github.io/emercado-api/products/${element.id}.json`
+        );
+        console.log(productObject);
+        localStorage.setItem(
+          "productoClickeado",
+          JSON.stringify(await productObject.data)
+        );
+        window.location.href = "product-info.html";
       });
     });
   }
