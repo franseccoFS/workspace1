@@ -159,11 +159,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   //Se crean const que traen info del localStorage(producto que se clickeo y su nombre de categoria)
   const product = JSON.parse(localStorage.getItem("productoClickeado"));
   const productCategoryName = localStorage.getItem("catName");
-  let catURL = `https://japceibal.github.io/emercado-api/cats_products/${localStorage.getItem(
-    "catID"
-  )}.json`; //json con productos de la misma categoria
+  let catURL = `http://localhost:3000/cats/${localStorage.getItem("catID")}`; //json con productos de la misma categoria
   let catData = await getJSONData(catURL);
-  let productURL = `https://japceibal.github.io/emercado-api/products/${product.id}.json`;
+  let productURL = `http://localhost:3000/products/${product.id}`;
   let productfetch = await getJSONData(productURL);
   let relatedProductsDiv = document.getElementById("productosSimilares");
   let agregarButton = document.getElementById("agregarAlCarritoButton");
@@ -233,7 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       productoRelacionado.addEventListener("click", async () => {
         productObject = await getJSONData(
-          `https://japceibal.github.io/emercado-api/products/${element.id}.json`
+          `http://localhost:3000/products/${element.id}`
         );
         console.log(productObject);
         localStorage.setItem(
@@ -247,14 +245,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   //acá agrega el producto comprado al localstorage
   agregarButton.addEventListener("click", async () => {
-    let productosCarrito =
+    let url = 'http://localhost:3000/cartdb'
+
+
+    fetch(url, {
+      method: 'POST',
+      mode: 'cors',
+      headers:{
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({id: product.id})
+    })
+    
+    /*let productosCarrito =
       JSON.parse(localStorage.getItem("productosCarrito")) || [];
-    const productId = product.id;
+    const productId = product.id;*/
     //productosCarrito = [...productosCarrito, productId];
     //console.log(productosCarrito, product);
     if (!productosCarrito.includes(productId)){
       productosCarrito.push(productId)
     }
-    localStorage.setItem("productosCarrito", JSON.stringify(productosCarrito));
+    //localStorage.setItem("productosCarrito", JSON.stringify(productosCarrito));
   });
 });

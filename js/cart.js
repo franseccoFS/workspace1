@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     <div class="container">
         <div class="btn-menu">
             <label for="btn-menu" class="nav-item">
-                <a href="cart.html">
+                <a href="cart">
                     <i class="fa-solid fa-cart-shopping" style="color: #ffd6ff;"></i>
                 </a>
             </label>
@@ -20,46 +20,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const navbar = document.getElementById("navlist");
   navbar.appendChild(cartNavElement);
 
-  /*
-  const cartNavElement = document.createElement("li");
-  cartNavElement.innerHTML = `
-    <div class="container">
-        <div class="btn-menu">
-            <label for="btn-menu" class=""nav-item"><i class="fa-solid fa-cart-shopping" style="color: #ffd6ff;"></i></label>    
-        </div>   
-        <input type="checkbox" id="btn-menu">
-        <div class="container-menu">
-        <div class="cont-menu">
-                <h5 class="letras-carrito">Mi compra</h5>
-                    <nav id="backtomenu" class="menu">
-                        <ul id="shopContent" class="shoppContent" >
-                            <li><a href="cart.html">Ir al carrito</a></li>
-                            <ul id="lista-producto"> </ul>
-                            <li id="subtotal-sidebar"class="calculos-carrito">Subtotal: </li>
-                            <li id="descuentos-sidebar" class="calculos-carrito">Descuentos</li>
-                            <li id="total-sidebar" class="calculos-carrito">Total</li>
-                        </ul>
-                    </nav>
-                <button id="ir-a-checkout" class="boton-producto box-botonpr">
-                <div id="contenido-btn-comprar">Comprar</div>
-                </button>
-            <label for="btn-menu" class="icon-equis"><i class="fa-solid fa-x"></i></label>
-        </div>    
-        </div>
-    </div>
-`;
-  cartNavElement.classList.add("nav-item");
-  cartNavElement.id = "cart-nav-li";
-  //* Agregar elemento nav a navbar
-  const navbar = document.getElementById("navlist");
-  navbar.appendChild(cartNavElement);
-*/
-
+ 
   const agregarAlCarritoButton = document.getElementById(
     "agregarAlCarritoButton"
   );
   if (agregarAlCarritoButton) {
-    agregarAlCarritoButton.addEventListener("click", fillSidebarCart());
+    agregarAlCarritoButton.addEventListener("click", fillSidebarCart);
   }
   getJSONData(cart_pre_hecho).then(function (resultObj) {
     if (resultObj.status === "ok") {
@@ -79,9 +45,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
   fillSidebarCart("lista-producto");
-  loadProductIds();
+  await loadProductIds();
 
-  setTimeout(() => actualizarTotal(), 500);
+  setTimeout(() => actualizarTotal(), 1000);
 
   radioEnvio.addEventListener("click", () => {
     console.log("click");
@@ -89,8 +55,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-const cart_URL_base = "https://japceibal.github.io/emercado-api/user_cart/";
-const cart_pre_hecho = cart_URL_base + "25801" + EXT_TYPE;
+const cart_URL_base = "http://localhost:3000/user_cart/";
+const cart_pre_hecho = cart_URL_base + "25801";
 // const imagen_producto = document.getElementById("imagen-cart");
 // const nombre_producto = document.getElementById("name-cart");
 // const precio_producto = document.getElementById("cost-cart");
@@ -105,13 +71,13 @@ const cart_pre_hecho = cart_URL_base + "25801" + EXT_TYPE;
 // });
 
 async function showCart() {
-  const productosCarrito =
-    JSON.parse(localStorage.getItem("productosCarrito")) || [];
   const listaProductosCompra = document.getElementById(
     "lista-productos-compra"
   );
+  const productosCarritoRaw = await getJSONData('http://localhost:3000/cartdb')
+  let productosCarrito = productosCarritoRaw.data.map(obj => obj.product)
   productosCarrito.forEach(async (elementid) => {
-    let productoURL = `https://japceibal.github.io/emercado-api/products/${elementid}.json`;
+    let productoURL = `http://localhost:3000/products/${elementid}`;
     let productoFetch = await getJSONData(productoURL);
     let producto = productoFetch.data;
 
@@ -179,24 +145,22 @@ async function showCart() {
     let boteBasura = document.getElementById(`${producto.id}-boteBasuraIcon`);
 
     boteBasura.addEventListener("click", async () => {
-      let productosCarrito = await JSON.parse(
-        localStorage.getItem("productosCarrito")
-      );
+      
+      let data = {id: producto.id}
 
-      let index = productosCarrito.indexOf(producto.id);
-      if (index !== -1) {
-        productosCarrito.splice(index, 1);
+        fetch('http://localhost:3000/cartdb',{
+          method: 'DELETE',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
 
-        localStorage.setItem(
-          "productosCarrito",
-          JSON.stringify(productosCarrito)
-        );
 
         tableRow.remove();
         actualizarTotal();
-      } else {
-        console.log(`${producto.id} not found in productosCarrito`);
-      }
+
     });
   });
 
@@ -257,7 +221,7 @@ async function fillSidebarCart(idListElement) {
   sidebarUl.innerHTML = "";
   let subTotalSidebarAmount = 0;
   productosCarrito.forEach(async (elementid) => {
-    let productoURL = `https://japceibal.github.io/emercado-api/products/${elementid}.json`;
+    let productoURL = `http://localhost:3000/products/${elementid}`;
     let productoFetch = await getJSONData(productoURL);
     let producto = productoFetch.data;
     const liElement = document.createElement("li");
@@ -523,3 +487,4 @@ document
     // Set the appropriate card image
     cardImageContainer.innerHTML = `<img src="${cardType}.png" alt="${cardType}">`;
   });
+
